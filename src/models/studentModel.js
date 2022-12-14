@@ -13,7 +13,7 @@ const studentSchema = new mongoose.Schema({
     },
     marks: {
         type: Number,
-        required : true
+        required: true
     },
     teacherId: {
         type: ObjectId,
@@ -21,8 +21,8 @@ const studentSchema = new mongoose.Schema({
         required: true
     },
     isDeleted: {
-        type : Boolean,
-        default : false
+        type: Boolean,
+        default: false
     },
     deletedAt: {
         type: Date,

@@ -3,9 +3,12 @@ const teacherModel = require("../models/teacherModel")
 const mongoose = require("mongoose")
 let nameRegex = /^[A-Za-z]+$/
 let numberRegex = /^\d+$/
+
 const isValidObjectId = function (ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
+
+// _____________________________CREATE STUDENT________________________________
 
 const createStudent = async function (req, res) {
     try {
@@ -21,12 +24,14 @@ const createStudent = async function (req, res) {
         if (!nameRegex.test(data.studentName)) {
             return res.status(400).send({ status: false, message: "student name is not in the correct format" })
         }
+
         if (!data.subject) {
             return res.status(400).send({ status: false, message: "subject is mandatory" })
         }
         if (!nameRegex.test(data.subject)) {
             return res.status(400).send({ status: false, message: "subject name is not in the correct format" })
         }
+
         if (!data.marks) {
             return res.status(400).send({ status: false, message: "marks are mandatory" })
         }
@@ -58,7 +63,7 @@ const createStudent = async function (req, res) {
     }
 }
 
-
+// _____________________________GET STUDENTS________________________________
 
 const getStudentsList = async function (req, res) {
     try {
@@ -66,11 +71,12 @@ const getStudentsList = async function (req, res) {
         if (!isValidObjectId(teacherId)) {
             return res.status(400).send({ status: false, message: "teacher Id is not valid" })
         }
-        if(req.teacherId != teacherId){
-            return res.status(403).send({status:false,message:"Unauthorized access"})
+
+        if (req.teacherId != teacherId) {
+            return res.status(403).send({ status: false, message: "Unauthorized access" })
         }
 
-        let teacherDocument = await teacherModel.findOne({ _id: teacherId})
+        let teacherDocument = await teacherModel.findOne({ _id: teacherId })
         if (!teacherDocument) {
             return res.status(404).send({ status: false, message: "teacher document not found" })
         }
@@ -79,18 +85,19 @@ const getStudentsList = async function (req, res) {
         if (students.length == 0) {
             return res.status(404).send({ status: false, message: "students document not found" })
         }
+
         return res.status(200).send({ status: true, data: students })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
 
-
-
+// _____________________________GET STUDENT________________________________
 
 const getStudent = async function (req, res) {
     try {
         let studentId = req.params.studentId
+
         if (!isValidObjectId(studentId)) {
             return res.status(400).send({ status: false, message: "student Id is not valid" })
         }
@@ -100,8 +107,8 @@ const getStudent = async function (req, res) {
             return res.status(404).send({ status: false, message: "Student document not found" })
         }
 
-        if(req.teacherId != studentDocument.teacherId){
-            return res.status(403).send({status:false,message:"Unauthorized access"})
+        if (req.teacherId != studentDocument.teacherId) {
+            return res.status(403).send({ status: false, message: "Unauthorized access" })
         }
 
         return res.status(200).send({ status: true, data: studentDocument })
@@ -109,28 +116,26 @@ const getStudent = async function (req, res) {
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
-
 }
 
-
-
+// _____________________________GET STUDENT BY FILTER________________________________
 
 const studentsListByFilter = async function (req, res) {
     try {
         let query = req.query
         let teacherId = req.params.teacherId
-        
+
         if (!isValidObjectId(teacherId)) {
             return res.status(400).send({ status: false, message: "teacher Id is not valid" })
         }
 
         let teacherExist = await teacherModel.findById(teacherId)
-        if(!teacherExist){
-            return res.status(404).send({status:false,message:"teacher document does not exists"})
+        if (!teacherExist) {
+            return res.status(404).send({ status: false, message: "teacher document does not exists" })
         }
-        
-        if(req.teacherId != teacherId){
-            return res.status(403).send({status:false,message:"Unauthorized access"})
+
+        if (req.teacherId != teacherId) {
+            return res.status(403).send({ status: false, message: "Unauthorized access" })
         }
 
         if (Object.keys(query).length > 0) {
@@ -155,8 +160,7 @@ const studentsListByFilter = async function (req, res) {
     }
 }
 
-
-
+// _____________________________UPDATE STUDENT________________________________
 
 const updateStudent = async function (req, res) {
     try {
@@ -166,12 +170,12 @@ const updateStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "student Id is not valid" })
         }
 
-        let studentExist = await studentModel.findOne({_id:studentId,isDeleted:false})
-        if(!studentExist){
+        let studentExist = await studentModel.findOne({ _id: studentId, isDeleted: false })
+        if (!studentExist) {
             return res.status(404).send({ status: false, message: "student document does not exist" })
         }
 
-        if(req.teacherId != studentExist.teacherId){
+        if (req.teacherId != studentExist.teacherId) {
             return res.status(403).send({ status: false, message: "Unauthorized access" })
         }
 
@@ -202,7 +206,7 @@ const updateStudent = async function (req, res) {
     }
 }
 
-
+// _____________________________DELETE STUDENT________________________________
 
 const deleteStudent = async function (req, res) {
     try {
@@ -211,16 +215,16 @@ const deleteStudent = async function (req, res) {
             return res.status(400).send({ status: false, message: "student Id is not valid" })
         }
 
-        let studentExist = await studentModel.findOne({_id:studentId,isDeleted:false})
-        if(!studentExist){
+        let studentExist = await studentModel.findOne({ _id: studentId, isDeleted: false })
+        if (!studentExist) {
             return res.status(404).send({ status: false, message: "student document does not exist" })
         }
 
-        if(req.teacherId != studentExist.teacherId){
+        if (req.teacherId != studentExist.teacherId) {
             return res.status(403).send({ status: false, message: "Unauthorized access" })
         }
 
-        let deleteStudent = await studentModel.findOneAndUpdate({ _id: studentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt:Date.now() } })
+        let deleteStudent = await studentModel.findOneAndUpdate({ _id: studentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: Date.now() } })
         return res.status(200).send({ status: true, message: "student document deleted successfully" })
 
     } catch (error) {
